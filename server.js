@@ -14,4 +14,4 @@ app.use(bodyParser.urlencoded({extended:false}))
 
 
 const PORT = process.env.PORT || 6111
-app.listen(PORT,console.log('server started...'))
+app.listen(PORT, () => console.log(`server started...on port ${PORT}`))
