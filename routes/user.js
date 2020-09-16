@@ -3,6 +3,7 @@ const router = express.Router()
 const userModel = require('../models/user')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const gravatar = require('gravatar')
 
 
 
@@ -28,6 +29,12 @@ router.post('/registor',(req,res) => {
 
             else{
 
+                const avatar = gravatar.url(email, {
+                    s:"150",
+                    r:"pg",
+                    d:"mm"
+                })
+
                 bcrypt.hash(password, 10, (err,hash) => {
 
                     if (err) {
@@ -39,7 +46,7 @@ router.post('/registor',(req,res) => {
                     else {
 
                         const newUser = new userModel({
-                            name, email, password:hash
+                            name, email, password:hash, avatar:avatar
                         })
 
                         newUser
