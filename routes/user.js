@@ -1,9 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const userModel = require('../models/user')
-const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const gravatar = require('gravatar')
+
 
 
 
@@ -29,44 +28,26 @@ router.post('/registor',(req,res) => {
 
             else{
 
-                const avatar = gravatar.url(email, {
-                    s:"150",
-                    r:"pg",
-                    d:"mm"
+                const newUser = new userModel({
+                    name, email, password
                 })
 
-                bcrypt.hash(password, 10, (err,hash) => {
-
-                    if (err) {
-                        return res.json({
+                newUser
+                    .save()
+                    .then(user => {
+                        res.json({
+                            message:'saved data',
+                            userInfo:user
+                        })
+                    })
+                    .catch(err => {
+                        res.json({
                             message:err.message
                         })
-                    }
-
-                    else {
-
-                        const newUser = new userModel({
-                            name, email, password:hash, avatar:avatar
-                        })
-
-                        newUser
-                            .save()
-                            .then(user => {
-                                res.json({
-                                    message:'saved data',
-                                    userInfo:user
-                                })
-                            })
-                            .catch(err => {
-                                res.json({
-                                    message:err.message
-                                })
-                            })
-                    }
-                })
+                    })
             }
-
         })
+
         .catch(err => {
             res.json({
                 message:err.message
