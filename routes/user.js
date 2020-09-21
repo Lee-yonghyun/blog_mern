@@ -3,6 +3,14 @@ const router = express.Router()
 const userModel = require('../models/user')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+function tokenGenerator (payload) {
+    return jwt.sign(
+        payload,
+        process.env.SECRETKEY,
+        {expiresIn: '1d'}
+    )
+}
+
 
 
 
@@ -86,15 +94,9 @@ router.post('/login',(req,res) => {
 
                         const payload = {id:user._id, name:user.name, email:user.email, avatar:user.avatar}
 
-                        const token = jwt.sign(
-                            payload,
-                            process.env.SECRETKEY,
-                            {expiresIn: "1d"}
-                        )
-
                         res.json({
                             success: result,
-                            token: token
+                            token: tokenGenerator(payload)
                         })
                     }
                 })
