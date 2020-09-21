@@ -1,19 +1,19 @@
 const express = require('express')
 const router = express.Router()
 const userModel = require('../models/user')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 
 
 
-// @route   POST http://localhost:6000/users/registor
-// @desc    Registor user
+// @route   POST http://localhost:6000/users/register
+// @desc    Register user
 // @access  Public
 
-router.post('/registor',(req,res) => {
+router.post('/register',(req,res) => {
 
     const { name, email, password } = req.body
-
 
     userModel
         .findOne({email})
@@ -21,13 +21,12 @@ router.post('/registor',(req,res) => {
             console.log(user)
 
             if (user) {
-                return res.json({
+                return res.status(400).json({
                     message:"email already existed"
                 })
             }
 
             else{
-
                 const newUser = new userModel({
                     name, email, password
                 })
@@ -76,31 +75,27 @@ router.post('/login',(req,res) => {
                 })
             }
 
-            else{
+            else {
 
-                bcrypt.compare(password, user.password, (err,result) => {
+                user.comparePassword(password, (err, result) => {
+                    if (err || result === false) {
+                        return res.json({
+                            message: 'password incorrect'
+                        })
+                    } else {
+                        const token = jwt.sign(
+                            {email: user.email, userId: user._id},
+                            "key",
+                            {expiresIn: "1d"}
+                        )
 
-                  if (err || result === false) {
-                      return res.json({
-                          success:result,
-                          message:'password incorrect'
-                      })
-                  }
-                  else {
-                      const token = jwt.sign(
-                          {email:user.email, userId:user._id},
-                          "key",
-                          {expiresIn:"1d"}
-                      )
-
-                      res.json({
-                          success:result,
-                          token:token
-                      })
-                  }
+                        res.json({
+                            success: result,
+                            token: token
+                        })
+                    }
                 })
             }
-
         })
         .catch(err => {
             res.json({
