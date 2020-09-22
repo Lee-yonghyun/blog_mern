@@ -74,4 +74,56 @@ router.post('/register',checkAuth, (req, res) => {
 })
 
 
+//프로필 가져오기 (사용자)
+router.get('/',checkAuth, (req,res) => {
+
+    profileModel
+        .findOne({user:req.user.id})
+        .then(profile => {
+            if(!profile) {
+                return res.status(200).json({
+                    message: "no profile"
+                })
+            }
+            else {
+                res.status(200).json(profile)
+            }
+        })
+        .catch(err => {
+            res.json({
+                messgae:err.message
+            })
+        })
+})
+
+
+//프로필 가져오기 (모든 사용자가 가능하도록)
+router.get('/total', (req,res) => {
+
+    profileModel
+        .find()
+        .populate("user" , "name email avatar")
+        .then(profiles => {
+
+            if(profiles.length === 0 ){
+                return res.status(200).json({
+                    message:"profile not exist"
+                })
+            }
+
+            else {
+                res.status(200).json({
+                    count:profiles.length,
+                    profiles:profiles
+                })
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                message:err.message
+            })
+        })
+})
+
+
 module.exports = router
