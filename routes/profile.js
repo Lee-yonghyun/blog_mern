@@ -126,4 +126,22 @@ router.get('/total', (req,res) => {
 })
 
 
+//프로필 삭제하기 (개인)
+router.delete('/',checkAuth, (req,res) => {
+
+    profileModel
+        .findOneAndDelete({user:req.user.id})
+        .then(() => {
+            res.status(200).json({
+                message:"delete profile"
+            })
+        } )
+        .catch(err => {
+            res.status(500).json({
+                message:err.message
+            })
+        })
+})
+
+
 module.exports = router
