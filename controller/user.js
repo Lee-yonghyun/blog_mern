@@ -92,3 +92,50 @@ exports.login_user =  (req,res) => {
             })
         })
 }
+
+
+
+exports.current_user = (req,res) => {
+
+    console.log(req.user)
+    //payload의 형식, 발행된 jwt의 형식과 일치 but, usermodel에서 가져오는 것!
+    res.json({
+        id:req.user.id,
+        email:req.user.email,
+        name:req.user.name,
+        avatar:req.user.avatar,
+        // password:req.user.password
+    })
+}
+
+
+
+exports.all_user =  (req,res) => {
+
+    userModel
+        .findById(req.user.id)
+        .then(user => {
+
+            if(user.role !== "admin") {
+                return res.json({
+                    message:"you are not admin"
+                })
+            }
+
+            else {
+                userModel
+                    .find()
+                    .then(users => res.json(users))
+                    .catch(err => {
+                        res.json({
+                            message:err.message
+                        })
+                    })
+            }
+        })
+        .catch(err => {
+            res.json({
+                message:err.message
+            })
+        })
+}

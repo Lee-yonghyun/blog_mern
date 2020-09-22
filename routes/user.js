@@ -2,7 +2,9 @@ const express = require('express')
 const router = express.Router()
 const {
     register_user,
-    login_user
+    login_user,
+    current_user,
+    all_user
 } = require('../controller/user')
 const userModel = require('../models/user')
 
@@ -32,18 +34,7 @@ router.post('/login',login_user)
 //@route    GET http://localhost:6000/users/current
 //@desc     get current userinfo
 //@access   Private
-router.get('/current', checkAuth,(req,res) => {
-
-    console.log(req.user)
-    //payload의 형식, 발행된 jwt의 형식과 일치 but, usermodel에서 가져오는 것!
-    res.json({
-        id:req.user.id,
-        email:req.user.email,
-        name:req.user.name,
-        avatar:req.user.avatar,
-        // password:req.user.password
-    })
-})
+router.get('/current', checkAuth, current_user)
 
 
 
@@ -52,35 +43,7 @@ router.get('/current', checkAuth,(req,res) => {
 //@route    GET http://localhost:6000/users/all
 //@desc     get all userinfo
 //@access   Private
-router.get('/all',checkAuth, (req,res) => {
-
-    userModel
-        .findById(req.user.id)
-        .then(user => {
-
-            if(user.role !== "admin") {
-                return res.json({
-                    message:"you are not admin"
-                })
-            }
-
-            else {
-                userModel
-                    .find()
-                    .then(users => res.json(users))
-                    .catch(err => {
-                        res.json({
-                            message:err.message
-                        })
-                    })
-            }
-        })
-        .catch(err => {
-            res.json({
-                message:err.message
-            })
-        })
-})
+router.get('/all',checkAuth, all_user)
 
 
 module.exports = router
