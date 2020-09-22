@@ -29,13 +29,27 @@ router.post('/register',checkAuth, (req, res) => {
     profileModel
         .findOne({user:req.user.id})
         .then(profile => {
-            //profile이 있다면?
+            //profile이 있다면? -> 수정
             if(profile) {
-                return res.status(200).json({
-                    message: "proflie already exists, please update profile"
-                })
+
+                profileModel
+                    .findOneAndUpdate(
+                        {user:req.user.id},
+                        {$set: profileFields},
+                        {new: true}
+                    )
+                    .then(profile => {
+                        res.status(200).json(profile)
+                    })
+                    .catch(err => {
+                        res.status(404).json({
+                            message:err.message
+                        })
+                    })
+
             }
-            //profile이 없다면?
+
+            //profile이 없다면? -> 추가
             else{
                 new profileModel(profileFields)
                     .save()
@@ -46,6 +60,8 @@ router.post('/register',checkAuth, (req, res) => {
                         })
                     })
             }
+
+
         })
         .catch(err => {
             res.json({
