@@ -17,7 +17,6 @@ const checkAuth = passport.authenticate("jwt", {session:false})
 // @route   POST http://localhost:6000/users/register
 // @desc    Register user
 // @access  Public
-
 router.post('/register',register_user)
 
 
@@ -25,7 +24,6 @@ router.post('/register',register_user)
 // @route   POST http://localhost:6000/users/login
 // @desc    login user & get token
 // @access  Public
-
 router.post('/login',login_user)
 
 
