@@ -168,7 +168,7 @@ router.post('/like/:post_id',checkAuth, (req,res) => {
 })
 
 
-//@route    DElete http://localhost:6000/post/unlike/:post_id (좋아요 취소하기)
+//@route    Delete http://localhost:6000/post/unlike/:post_id (좋아요 취소하기)
 //@desc     UnLike post
 //@access   Private
 router.delete('/unlike/:post_id',checkAuth,(req,res) => {
@@ -208,6 +208,89 @@ router.delete('/unlike/:post_id',checkAuth,(req,res) => {
                 message: err.message
             })
         })
+})
+
+
+//@route    POST http://localhost:6000/post/comment/:post_id
+//@desc      post
+//@access   Private
+router.post('/comment/:post_id',checkAuth, (req,res) => {
+
+    const id = req.params.post_id
+
+    postModel
+        .findById(id)
+        .then(post => {
+
+            const newComment = {
+                text: req.body.text,
+                name: req.body.name,
+                avatar: req.user.avatar,
+                user: req.user.id
+            }
+
+            post.comments.unshift(newComment)
+            post
+                .save()
+                .then(post => res.status(200).json(post))
+                .catch(err => {
+                    res.status(400).json({
+                        message: err.message
+                    })
+                })
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: err.message
+            })
+        })
+})
+
+
+// 여러개의 comment중 하나를 삭제
+router.delete('/comment/:post_id/:comment_id',checkAuth,(req,res) => {
+
+    const id = req.params.post_id
+
+    postModel
+        .findById(id)
+        .then(post => {
+            //본인 comment가 아닌경우
+            if (post.comments.filter(comment => comment.user.toString() === req.user.id).length === 0){
+                return res.status(200).json({
+                    message: "you have not authorized to delete comment"
+                })
+            }
+            // comment가 없는 경우
+            if (post.comments.filter(comment => comment._id.toString() === req.params.comment_id).length === 0){
+                return res.status(200).json({
+                    message: "you have no comment"
+                })
+            }
+            //comment가 있다면?
+            else {
+                const removeIndex = post.comments
+                    .map(comment => comment._id.toString())
+                    .indexOf(req.params.comment_id)
+
+                post.comments.splice(removeIndex, 1)
+
+                post
+                    .save()
+                    .then(post => res.status(200).json(post))
+                    .catch(err => {
+                        res.status(400).json({
+                            message: err.message
+                        })
+                    })
+            }
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: err.message
+            })
+        })
+
 })
 
 
