@@ -6,8 +6,8 @@ const checkAuth = passport.authenticate("jwt", {session : false})
 
 
 
-//프로필 등록
-//  http://localhost:6000/profiles/register
+//프로필 등록 및 수정
+//@route    POST http://localhost:6000/profiles/register
 router.post('/register',checkAuth, (req, res) => {
 
     const profileFields = {};

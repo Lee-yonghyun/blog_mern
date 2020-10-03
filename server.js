@@ -10,6 +10,7 @@ const profileRoutes = require('./routes/profile')
 const passport = require('passport')
 const postRoutes = require('./routes/post')
 
+
 app.use(morgan('dev'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
