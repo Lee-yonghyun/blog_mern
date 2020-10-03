@@ -2,6 +2,7 @@ const userModel = require('../models/user')
 const jwt = require('jsonwebtoken')
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.MAIL_KEY)
+const { validationResult } = require('express-validator')
 
 function tokenGenerator (payload) {
     return jwt.sign(
@@ -21,6 +22,12 @@ exports.register_user = (req,res) => {
 
     const { name, email, password } = req.body
 
+    const errors = validationResult(req) //사용자 요청에 대해 결과값을 담겠다. 패스되면 error가 없으니까. 검증이 잘되면 pass
+
+    if(!errors.isEmpty()) { //내용이 있다면 -> 에러라면
+        return res.status(422).json(errors)
+    }
+    // error가 안뜨면
     userModel
         .findOne({email})
         .then(user => {
@@ -28,7 +35,7 @@ exports.register_user = (req,res) => {
 
             if (user) {
                 return res.status(400).json({
-                    message:"email already existed"
+                    errors:"email already existed"
                 })
             }
 
@@ -64,7 +71,7 @@ exports.register_user = (req,res) => {
                     })
                     .catch(err => {
                         res.status(400).json({
-                            message:err.message
+                            errors:err.message
                         })
                     })
             }
@@ -72,7 +79,7 @@ exports.register_user = (req,res) => {
 
         .catch(err => {
             res.json({
-                message:err.message
+                errors:err.message
             })
         })
 }
@@ -84,6 +91,12 @@ exports.register_user = (req,res) => {
 exports.login_user =  (req,res) => {
 
     const {name , email, password} = req.body
+
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()) {
+        return res.status(422).json(errors)
+    }
 
     userModel
         .findOne({email})
